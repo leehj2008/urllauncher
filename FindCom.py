@@ -57,7 +57,7 @@ class FindCom(object):
 def handleSub(hdl,param): 
     cls = win32gui.GetClassName(hdl)
     print cls
-    if cls!='TPanel':
+    if cls!='TPanel': 
         return True
     try:
         txt = win32gui.GetWindowText(hdl)
