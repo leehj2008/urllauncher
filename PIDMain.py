@@ -10,15 +10,19 @@ from Tkinter import *
 from ConfigParser import ConfigParser
 class PIDMain(object):
     root = Tk() 
+    icon=PhotoImage(file="logo.gif")
+    dragLabel=None
+    menu=None
     pidtext = StringVar()
     entry = None
+    x,y=0,0
     url=''
     command=''
     fgcolor='black'
     bgcolor='white'
     width=100
     height=30
-    state=''
+    state='disabled'
     title='PIDPICKER'
     hidetitle=True
     scree_w=win32api.GetSystemMetrics (0)
@@ -33,6 +37,19 @@ class PIDMain(object):
         finalCmd = r'%s %s'%(self.command,finalUrl)
         print finalCmd
         os.system(finalCmd)
+        
+    def exitApp(self):
+        self.root.destroy()
+    
+    def popup(self,event):
+        self.menu.post(event.x_root,event.y_root)
+    
+    def move(self,event):
+        new_x = (event.x-self.x)+self.root.winfo_x()
+        new_y = (event.y-self.y)+self.root.winfo_y()
+        #s = "300x200+" + str(new_x)+"+" + str(new_y)
+        s='%dx%d+%d+%d'%(self.width,self.height,new_x,new_y)
+        self.root.geometry(s)
         
     def __init__(self):
         self.config = ConfigParser()
@@ -58,14 +75,22 @@ class PIDMain(object):
         self.root.resizable(0, 0)
         self.pidtext.set("")
         print self.bgcolor,self.fgcolor
+        self.dragLabel=Label(image=self.icon)
         self.entry=Entry(self.root, 
                        textvariable =self.pidtext,
                        disabledbackground=self.bgcolor,
                        disabledforeground=self.fgcolor,
-                       cursor='hand2',
-                       state = 'normal')
-        self.entry.bind('<Double-Button-1>', self.callback)
-        self.entry.pack(side=LEFT)
+                       fg=self.fgcolor,
+                       bg=self.bgcolor,
+                       #cursor='hand2',
+                       state = self.state)
+        self.dragLabel.bind('<Double-Button-1>', self.callback)
+        self.entry.grid(row=0,column=1)
+        self.menu = Menu(self.root,tearoff=0)
+        self.menu.add_command(label="Exit",command=self.exitApp)
+        self.dragLabel.bind("<Button-3>",self.popup)
+        self.dragLabel.bind("<B1-Motion>",self.move)
+        self.dragLabel.grid(row=0,column=0)
         
 
 if __name__ == '__main__':
